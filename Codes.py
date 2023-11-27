@@ -18,7 +18,7 @@ def handTracking(show, number, changeColor, color, question):
     Make sure to set your OpenAI API key before using this function.
     """
     # Set your OpenAI API key here
-    openai.api_key = "APIKEY
+    openai.api_key = "APIKEY"
 
     # Initialize the speech recognizer
     recognizer = sr.Recognizer()
