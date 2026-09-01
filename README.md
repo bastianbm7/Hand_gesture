@@ -1,12 +1,41 @@
-# Sign Language Prediction Model using YoloV8 and OpenCV.
+# Hand Gesture & Sign Language Recognition
 
-This project involves the implementation of a real-time sign language detection model using the YOLOv8 pretrained model. The project's primary objective is to develop a model capable of predicting 9 letters of sign language based on this pretrained model.
+Real-time computer vision system that detects hand landmarks and body pose from a webcam feed, and classifies hand shapes into sign-language letters using a custom-trained YOLOv8 model.
 
-To facilitate data acquisition, a concise code snippet for capturing and saving photos in a designated directory is employed. The training process takes place in Google Colab through Roboflow.
+## What it does
 
-Furthermore, it offers a user-friendly experience through the integration of the OpenCV2 library in Python 3.10 for real-time monitoring of hand and body detection.
+- **Hand tracking**: uses MediaPipe Hands to detect 21 hand landmarks per hand in real time, draw a bounding box, tell left hand from right hand, and highlight selected landmarks.
+- **Sign language classification**: a YOLOv8 model (`signLenguage_Model.pt`), trained on a custom dataset built from webcam captures and labeled/trained via Roboflow, predicts 9 sign-language letters (A, B, C, D, F, Rock, U, V, Y) from the live video stream.
+- **Body pose tracking**: a MediaPipe Pose variant that tracks full-body landmarks and draws a bounding box around the detected person.
+- **Data collection pipeline**: `collect_imgs.py` captures and saves labeled webcam images per gesture class into `Data/<class_id>/`, which is the raw dataset used to train the classifier.
 
-**The letters detected are**: - A - B - C- D - F - U - V - Y- Rock
+## Tech stack
 
-**Total dataset contains 180 images, 20 from each letter**.
+Python, OpenCV, MediaPipe, Ultralytics YOLOv8, NumPy.
 
+## Project structure
+
+```
+Codes.py              # Reusable hand-tracking function (production/library version)
+collect_imgs.py        # Webcam-based dataset collection tool
+useCode.ipynb          # Usage notebook: hand tracking, sign classification, body pose demos
+signLenguage_Model.pt   # Trained YOLOv8 weights for sign-language letter classification
+Data/0 .. Data/8       # Labeled training images, one folder per gesture class
+requirements.txt
+```
+
+## How to run
+
+```bash
+pip install -r requirements.txt
+```
+
+Open `useCode.ipynb` and run the cells for the demo you want:
+
+1. **Hand detection** — tracks hand landmarks, numbers them, and can recolor specific points.
+2. **Hand gesture / sign language** — loads `signLenguage_Model.pt` and classifies the sign shown to the webcam.
+3. **Body detection** — tracks full-body pose landmarks.
+
+To collect new training data for additional gesture classes, run `collect_imgs.py` (adjust `number_of_classes` and `dataset_size` first) and retrain the YOLOv8 model on the resulting `Data/` folder (originally done via Google Colab + Roboflow).
+
+`Codes.py` also contains an experimental branch (see `useCode.ipynb`, cell 2) that combines hand tracking with speech recognition and an LLM call to build a hands-free "ask a question" interaction — the API key for that part must be supplied separately and is not included here.
