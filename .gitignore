@@ -159,6 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Datos y modelo movidos fuera del repo (ver datos/ en modelo_de_trabajo)
-Data/
-signLenguage_Model.pt
+# Fotos de entrenamiento — privadas (muestran cara real), viven fuera del
+# repo en datos/bases/Hand_gesture/ dentro de modelo_de_trabajo. Esta regla
+# es un resguardo por si alguna vez se copian aquí por error.
+datos/bases/Data/
