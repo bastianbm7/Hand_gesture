@@ -2,6 +2,21 @@
 
 Real-time computer vision system that detects hand landmarks and body pose from a webcam feed, and classifies hand shapes into sign-language letters using a custom-trained YOLOv8 model.
 
+## Results
+
+![Confusion matrix](datos/resultados/confusion_matrix.png)
+
+Evaluated on the 180 training images (no separate held-out test set exists from the original Roboflow training, so this measures fit-to-training-examples, not generalization to new photos) -- 175/180 got a detection, and every one of those was classified correctly.
+
+**Found and fixed a real bug in the process:** the `labels` dict used to turn the model's raw output index into a letter (in `useCode.ipynb`) didn't match the model's actual internal class ordering for 4 of the 9 signs -- Rock/U/V/Y were cyclically shifted, so the live demo would have shown the wrong letter for any of those four signs. Before the fix, raw accuracy was 57.1% (A-D and F were fine; Rock/U/V/Y were each consistently displayed as a different one of the same four). The bug was invisible without checking predictions against known labels, since the model was actually working correctly, just with a wrong index-to-letter table downstream.
+
+![Sample predictions](datos/resultados/predictions_sample.png)
+*(cropped to the hand only -- the source webcam captures are close-up selfies with the face in frame, see "Training data" below)*
+
+**Baseline comparison:** a much lighter alternative -- MediaPipe hand landmarks (21 points, no GPU) plus a `RandomForestClassifier` -- reaches 98.3% ± 2.2% accuracy under 5-fold cross-validation (a genuinely held-out measure, unlike the YOLOv8 number above). MediaPipe also detected a hand in all 180 images, 5 more than YOLOv8. The two are practically tied on accuracy; the landmark baseline is far cheaper to run and was evaluated more rigorously, so it's the better choice if the goal is just classifying an already-cropped hand shape rather than also locating the hand in the frame (which is what YOLOv8 adds).
+
+Full code for both the confusion matrix and the baseline is in `codigos/useCode.ipynb`, under "Evaluacion" -- runs on the static training images, no webcam needed.
+
 ## What it does
 
 - **Hand tracking**: uses MediaPipe Hands to detect 21 hand landmarks per hand in real time, draw a bounding box, tell left hand from right hand, and highlight selected landmarks.
@@ -23,8 +38,12 @@ Python, OpenCV, MediaPipe, Ultralytics YOLOv8, NumPy.
 codigos/
   Codes.py              # Reusable hand-tracking function (production/library version)
   collect_imgs.py        # Webcam-based dataset collection tool
-  useCode.ipynb          # Usage notebook: hand tracking, sign classification, body pose demos
-datos/resultados/signLenguage_Model.pt   # Trained YOLOv8 weights (50MB — see note below)
+  useCode.ipynb          # Usage notebook: hand tracking, sign classification, body pose demos,
+                          # plus an "Evaluacion" section (confusion matrix, landmarks baseline)
+datos/resultados/
+  signLenguage_Model.pt   # Trained YOLOv8 weights (50MB — see note below)
+  confusion_matrix.png    # YOLOv8 evaluation (see "Results" above)
+  predictions_sample.png  # One correctly-classified example per class, cropped to the hand
 requirements.txt
 ```
 
